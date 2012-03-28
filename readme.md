@@ -4,30 +4,27 @@ NDS
 Growing into a node.js/socket.io based server + client lib for connecting interactive applications.
 
 Launching NCS
-===
+---
 
 in terminal:
 
-		cd path/to/ncs/ncs
-		node ncs.js
+		cd path/to/ncs/
+		./launch_ncs
 
 in browser:
 
-		http://localhost:8080/test/ncs_test.html
+		http://localhost:8080
 
+Or instead of localhost, the hostname or ip of your server.
 
-The files for ncs_test can be served from the ncs node application. This makes it easy to quickly check if ncs is running.
-
-The other examples can be open directly in a browser from your filesystem (file://) in some browsers (Firefox), but not in others (Chrome). See this [issue at github](https://github.com/LearnBoost/socket.io/issues/801)
-
-Opening the other examples from a webserver (such as MAMP) on localhost or on a non-local webserver should work.
+The examples are served through the ncs server so you can run them on a local machine without using a seperate http server (like MAMP). Opening the examples from directly from your filesystem (file://) also works in some browsers (Firefox), but not in others (Chrome). See this [issue at github](https://github.com/LearnBoost/socket.io/issues/801)
 
 
 Requires
 ---
 You need to have node installed and the socket.io module
 
-		cd path/to/ncs/ncs
+		cd path/to/ncs/
 		npm install socket.io
 
-This creates a node_modules folder in you working directory (if needed) and installs socketio
+This creates a node_modules folder in you working directory (if needed) and installs socket.io
