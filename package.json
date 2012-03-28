@@ -1,0 +1,9 @@
+{
+  "name": "ncs",
+  "description": "Light-weight system for sending messages between interactive apps.",
+  "author": "Justin Bakse",
+  "dependencies": {
+    "socket.io": "0.9.x"
+  },
+  "engine": "node 0.6.13"
+}

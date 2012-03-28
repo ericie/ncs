@@ -29,7 +29,7 @@ I'm using OS X
 
 As it happens, I did have java the first time I did this, but not on a clean install of OS X Lion. Atempting to run `/usr/bin/java -v` prompted OS X to ask and install it.
 
-* Setup a key pair for ssh-ing with the ec2 tools
+* Setup a key pair for ssh-ing with the ec2 tools (this uses the name pstam-keypair because it is based on Paul STAMatiou's walkthrough, if you are not paul, you might want a different name)
 	* ec2-add-keypair pstam-keypair
 	* paste the contents of the private key into a new file "id_rsa-pstam-keypair" (You want the lines with ===== and everything in between)
 	* protect the file `sudo chmod 600 id_rsa-pstam-keypair`
