@@ -4,6 +4,18 @@ mice = {}
 # a random id for this mouse, one in a million ain't bad
 id = Math.floor(Math.random()*100000)
 
+class MultimousePointer
+	#create a div on the <body> to represent the mouse
+	constructor: () ->
+		@elem =  $("""<div class="multimouse-pointer"/>""")	
+		$('body').append @elem
+
+	moveTo: (_x, _y)->
+		@elem.css 'left', _x + 'px'
+		@elem.css 'top', _y + 'px'
+
+
+
 # kick off the code when the browser is ready
 $ ()->
 	# create our pointer instance and associate it with the id
@@ -32,12 +44,4 @@ $ ()->
 
 
 
-class MultimousePointer
-	#create a div on the <body> to represent the mouse
-	constructor: () ->
-		@elem =  $("""<div class="multimouse-pointer"/>""")	
-		$('body').append @elem
 
-	moveTo: (_x, _y)->
-		@elem.css 'left', _x + 'px'
-		@elem.css 'top', _y + 'px'

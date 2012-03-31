@@ -5,6 +5,22 @@
 
   id = Math.floor(Math.random() * 100000);
 
+  MultimousePointer = (function() {
+
+    function MultimousePointer() {
+      this.elem = $("<div class=\"multimouse-pointer\"/>");
+      $('body').append(this.elem);
+    }
+
+    MultimousePointer.prototype.moveTo = function(_x, _y) {
+      this.elem.css('left', _x + 'px');
+      return this.elem.css('top', _y + 'px');
+    };
+
+    return MultimousePointer;
+
+  })();
+
   $(function() {
     mice[id] = new MultimousePointer;
     ncs.connect(location.host, 'multimouse');
@@ -23,21 +39,5 @@
       });
     });
   });
-
-  MultimousePointer = (function() {
-
-    function MultimousePointer() {
-      this.elem = $("<div class=\"multimouse-pointer\"/>");
-      $('body').append(this.elem);
-    }
-
-    MultimousePointer.prototype.moveTo = function(_x, _y) {
-      this.elem.css('left', _x + 'px');
-      return this.elem.css('top', _y + 'px');
-    };
-
-    return MultimousePointer;
-
-  })();
 
 }).call(this);
