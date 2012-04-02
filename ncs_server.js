@@ -1,5 +1,5 @@
 (function() {
-  var fs, http, httpHandler, io, path, socketHandler, socketio, start, startsWith;
+  var ConnectionsList, connections, fs, http, httpHandler, io, path, socketHandler, socketio, start, startsWith;
 
   http = require('http');
 
@@ -11,8 +11,12 @@
 
   io = null;
 
+  connections = null;
+
   start = function() {
     var app;
+    console.log("Hello, NCS Server.");
+    connections = new ConnectionsList;
     app = http.createServer(httpHandler);
     app.listen(8080);
     io = socketio.listen(app);
@@ -24,17 +28,78 @@
   */
 
   socketHandler = function(_socket) {
-    console.log('new connection', _socket);
+    var _this = this;
+    console.log('new connection');
+    connections.addConnection(_socket.id);
+    _socket.on('disconnect', function() {
+      return connections.removeConnection(_socket.id);
+    });
     _socket.send(JSON.stringify({
-      name: 'ncs',
+      app_name: 'ncs',
       key: 'hello',
       value: 'hello'
     }));
-    return _socket.on('message', function(_data) {
-      console.log('message', _data);
+    _socket.on('message', function(_data) {
+      connections.updateConnection(_socket.id, _data);
       return io.sockets.send(_data);
     });
+    _socket.on('ncs_status_request', function(_data) {
+      console.log('ncs_status_request');
+      return _socket.emit('ncs_status_response', JSON.stringify(connections.getStatus()));
+    });
+    return _socket.on('ncs_ping_response', function(_data) {
+      return connections.updatePing(_socket.id, Date.now() - _data);
+    });
   };
+
+  ConnectionsList = (function() {
+
+    function ConnectionsList() {
+      this.connections = {};
+    }
+
+    ConnectionsList.prototype.addConnection = function(_id) {
+      return this.connections[_id] = {
+        id: _id,
+        app_name: null,
+        transport: io.transports[_id].name,
+        ping: null,
+        received_messages: 0
+      };
+    };
+
+    ConnectionsList.prototype.updateConnection = function(_id, _data) {
+      this.connections[_id].received_messages++;
+      if (this.connections[_id].app_name === null) {
+        _data = JSON.parse(_data);
+        return this.connections[_id].app_name = _data.app_name;
+      }
+    };
+
+    ConnectionsList.prototype.updatePing = function(_id, _ms) {
+      return this.connections[_id].ping = _ms;
+    };
+
+    ConnectionsList.prototype.removeConnection = function(_id) {
+      return delete this.connections[_id];
+    };
+
+    ConnectionsList.prototype.getStatus = function() {
+      var id, info, status, _ref;
+      status = [];
+      console.log("status", this.connections);
+      _ref = this.connections;
+      for (id in _ref) {
+        info = _ref[id];
+        status.push(info);
+      }
+      io.sockets.emit('ncs_ping_request', Date.now());
+      return status;
+    };
+
+    return ConnectionsList;
+
+  })();
 
   /*
   Very basic http server, simply attempts to send the file in the _req.url

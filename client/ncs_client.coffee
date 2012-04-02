@@ -1,14 +1,21 @@
 class NCS
 	@onreceive = null
-	connect: (@host, @name)->
+	@socket = null
+	connect: (@host, @name, _callback)->
 		loadJS """http://#{@host}/socket.io/socket.io.js""", ()=>
 			@socket = io.connect """http://#{@host}"""
+			
 			@socket.on 'message', (_data)=>
 				@onmessage(_data)
+
+			@socket.on 'ncs_ping_request', (_data)=>
+				@socket.emit 'ncs_ping_response', _data
+
+			_callback()
 		
 	send: (_key, _value)->
 		if !@socket then return
-		@socket.send JSON.stringify {name: @name, key: _key, value: _value}
+		@socket.send JSON.stringify {app_name: @name, key: _key, value: _value}
 
 	onmessage: (_data) ->
 		_data = JSON.parse _data
@@ -17,11 +24,11 @@ class NCS
 
 	onreceive: (@onreceiveCallback) ->
 
+	getSocket: ()->
+		return @socket
 
 #export (polute) NCS to the global namespace
 window.ncs = new NCS
-
-
 
 #util
 loadJS = (_src, _callback)->
