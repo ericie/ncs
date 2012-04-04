@@ -1,3 +1,82 @@
-.ncs-dashboard table.status {
-  border: 1px solid red;
+body,
+p,
+td,
+th {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 18px;
+}
+header {
+  padding: 9px 9px;
+  border-bottom: 1px solid #6666aa;
+  margin-bottom: 18px;
+}
+.table-lined {
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.table-lined th,
+.table-lined td {
+  text-align: left;
+  padding: 9px 9px;
+}
+.table-lined th {
+  font-weight: normal;
+  color: #333366;
+  text-transform: capitalize;
+}
+.table-lined tr,
+.table-lined thead {
+  border-bottom: 1px solid #6666aa;
+}
+.table-lined tr:last-child {
+  border-bottom: none;
+}
+.table-stats th,
+.table-stats td {
+  text-align: left;
+  padding: 0px 9px;
+}
+.table-stats td:first-child {
+  font-weight: normal;
+  color: #333366;
+  text-transform: capitalize;
+}
+.ncs-dashboard .stats {
+  float: left;
+  margin-right: 60px;
+}
+.ncs-dashboard .stats th,
+.ncs-dashboard .stats td {
+  text-align: left;
+  padding: 0px 9px;
+}
+.ncs-dashboard .stats td:first-child {
+  font-weight: normal;
+  color: #333366;
+  text-transform: capitalize;
+}
+.ncs-dashboard .connections {
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.ncs-dashboard .connections th,
+.ncs-dashboard .connections td {
+  text-align: left;
+  padding: 9px 9px;
+}
+.ncs-dashboard .connections th {
+  font-weight: normal;
+  color: #333366;
+  text-transform: capitalize;
+}
+.ncs-dashboard .connections tr,
+.ncs-dashboard .connections thead {
+  border-bottom: 1px solid #6666aa;
+}
+.ncs-dashboard .connections tr:last-child {
+  border-bottom: none;
 }

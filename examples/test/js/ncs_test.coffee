@@ -1,12 +1,11 @@
 #start
 $ ()->
 	console.log "start"
-	ncs.connect location.host, "ncs_test"
-	
-	ncs.onreceive (_key, _value)->
-		if _key == 'hello'
-			screenLog 'received hello: ' + _value
+	ncs.connect location.host, "ncs_test", ()->
+		screenLog 'sending echo: testing'
+		ncs.send 'echo', Date.now()
 
+	ncs.onreceive (_key, _value)->
 		if _key == 'echo'
 			time = Date.now() - _value
 			screenLog """received echo(#{_value}) in #{time}ms"""
@@ -17,6 +16,6 @@ $ ()->
 
 #util
 screenLog = (_value)->
-	$("#console").append $ """<div>#{_value.toString()}</div>"""
+	$("#console").append $ """<tr><td>#{_value.toString()}</td></tr>"""
 
 

@@ -15,11 +15,12 @@
       this.name = name;
       return loadJS("http://" + this.host + "/socket.io/socket.io.js", function() {
         _this.socket = io.connect("http://" + _this.host);
-        _this.socket.on('message', function(_data) {
-          return _this.onmessage(_data);
-        });
+        _this.socket.emit('ncs_hello', _this.name);
         _this.socket.on('ncs_ping_request', function(_data) {
           return _this.socket.emit('ncs_ping_response', _data);
+        });
+        _this.socket.on('message', function(_data) {
+          return _this.onmessage(_data);
         });
         return _callback();
       });

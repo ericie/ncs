@@ -6,13 +6,14 @@ io = null
 
 
 connections = null
-
+stats = {total_messages: 0, total_connections: 0, start_time: 0}
 
 
 # Main entry point of the program. Called at end of file so that all the functions will be available when this runs.
 start = ()->
 	console.log "Hello, NCS Server."
 	connections = new ConnectionsList
+	stats.start_time = Date.now()
 
 	app = http.createServer(httpHandler)
 	app.listen 8080
@@ -29,24 +30,36 @@ This is the NCS server.
 
 
 socketHandler = (_socket)->
+
+	# welcome new connections
+
 	console.log 'new connection' #, _socket
+	stats.total_connections++;
+
 	connections.addConnection _socket.id
 	_socket.on 'disconnect', ()=>
-			connections.removeConnection _socket.id
+		connections.removeConnection _socket.id
+	_socket.emit 'ncs_hello', 'ncs'
 
-	_socket.send JSON.stringify {app_name: 'ncs', key: 'hello', value: 'hello'}
-	
+	# handle ncs protocol messages
 
-	_socket.on 'message', (_data)->
-		connections.updateConnection _socket.id, _data
-		io.sockets.send _data
-
-	_socket.on 'ncs_status_request', (_data)->
-		console.log 'ncs_status_request'
-		_socket.emit 'ncs_status_response', JSON.stringify connections.getStatus()
+	_socket.on 'ncs_hello', (_name)->
+		connections.updateName _socket.id, _name
 
 	_socket.on 'ncs_ping_response', (_data)->
 		connections.updatePing _socket.id, Date.now() - _data
+
+	_socket.on 'ncs_status_request', (_data)->
+		console.log 'ncs_status_request'
+		_socket.emit 'ncs_status_response', JSON.stringify {stats: stats, connections: connections.getStatus()}
+
+	# handle application messages
+
+	_socket.on 'message', (_data)->
+		stats.total_messages++;
+		connections.updateCount _socket.id
+		io.sockets.send _data
+
 
 
 class ConnectionsList
@@ -62,12 +75,11 @@ class ConnectionsList
 			received_messages: 0
 
 		
+	updateName: (_id, _name)->
+		@connections[_id].app_name = _name
 
-	updateConnection: (_id, _data)->
+	updateCount: (_id)->
 		@connections[_id].received_messages++
-		if @connections[_id].app_name == null
-			_data = JSON.parse _data
-			@connections[_id].app_name = _data.app_name
 
 	updatePing: (_id, _ms)->
 		@connections[_id].ping = _ms

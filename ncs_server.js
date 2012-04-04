@@ -1,5 +1,5 @@
 (function() {
-  var ConnectionsList, connections, fs, http, httpHandler, io, path, socketHandler, socketio, start, startsWith;
+  var ConnectionsList, connections, fs, http, httpHandler, io, path, socketHandler, socketio, start, startsWith, stats;
 
   http = require('http');
 
@@ -13,10 +13,17 @@
 
   connections = null;
 
+  stats = {
+    total_messages: 0,
+    total_connections: 0,
+    start_time: 0
+  };
+
   start = function() {
     var app;
     console.log("Hello, NCS Server.");
     connections = new ConnectionsList;
+    stats.start_time = Date.now();
     app = http.createServer(httpHandler);
     app.listen(8080);
     io = socketio.listen(app);
@@ -30,25 +37,29 @@
   socketHandler = function(_socket) {
     var _this = this;
     console.log('new connection');
+    stats.total_connections++;
     connections.addConnection(_socket.id);
     _socket.on('disconnect', function() {
       return connections.removeConnection(_socket.id);
     });
-    _socket.send(JSON.stringify({
-      app_name: 'ncs',
-      key: 'hello',
-      value: 'hello'
-    }));
-    _socket.on('message', function(_data) {
-      connections.updateConnection(_socket.id, _data);
-      return io.sockets.send(_data);
+    _socket.emit('ncs_hello', 'ncs');
+    _socket.on('ncs_hello', function(_name) {
+      return connections.updateName(_socket.id, _name);
+    });
+    _socket.on('ncs_ping_response', function(_data) {
+      return connections.updatePing(_socket.id, Date.now() - _data);
     });
     _socket.on('ncs_status_request', function(_data) {
       console.log('ncs_status_request');
-      return _socket.emit('ncs_status_response', JSON.stringify(connections.getStatus()));
+      return _socket.emit('ncs_status_response', JSON.stringify({
+        stats: stats,
+        connections: connections.getStatus()
+      }));
     });
-    return _socket.on('ncs_ping_response', function(_data) {
-      return connections.updatePing(_socket.id, Date.now() - _data);
+    return _socket.on('message', function(_data) {
+      stats.total_messages++;
+      connections.updateCount(_socket.id);
+      return io.sockets.send(_data);
     });
   };
 
@@ -68,12 +79,12 @@
       };
     };
 
-    ConnectionsList.prototype.updateConnection = function(_id, _data) {
-      this.connections[_id].received_messages++;
-      if (this.connections[_id].app_name === null) {
-        _data = JSON.parse(_data);
-        return this.connections[_id].app_name = _data.app_name;
-      }
+    ConnectionsList.prototype.updateName = function(_id, _name) {
+      return this.connections[_id].app_name = _name;
+    };
+
+    ConnectionsList.prototype.updateCount = function(_id) {
+      return this.connections[_id].received_messages++;
     };
 
     ConnectionsList.prototype.updatePing = function(_id, _ms) {

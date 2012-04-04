@@ -14,35 +14,56 @@ start = ()->
 
 class NCSStatusBoard
 	constructor: (@parent)->
-		@table = $ """<table class = "status">"""
-		@parent.append @table
+		@statsTable = $ """<table class = "stats">"""
+		@parent.append @statsTable
+		@connectionsTable = $ """<table class = "connections">"""
+		@parent.append @connectionsTable
+
+
 
 		ncs.getSocket().on 'ncs_status_response', (_status)->
 			statusBoard.updateStatus(JSON.parse _status)
 
+		ncs.getSocket().emit 'ncs_status_request'
 		every 2000, ()->
 			ncs.getSocket().emit 'ncs_status_request'
 
 
 	updateStatus: (_status)->
-		@table.empty()
+		
+		# stats
+		
+		_status.stats.start_time = new Date(_status.stats.start_time).format("yyyy-mm-dd HH:MM");
+		interval = new Date() - new Date(_status.stats.start_time)
+		hours = Math.floor(interval / (3600 * 1000))
+		minutes = Math.floor((interval % (3600 * 1000)) / (60 * 100)) / 10.0
+		_status.stats.uptime = """#{hours} hours, #{minutes} minutes"""
 
-		if _status.length
+		@statsTable.empty()
+		for key, value of _status.stats
+			@statsTable.append $ """<tr><td>#{key.replace("_"," ")}</td><td>#{value}</td></tr>"""
+
+		
+
+
+		# connections
+		@connectionsTable.empty()
+		if _status.connections.length
 			#build head
 			thead = $ """<thead>"""
-			for key, value of _status[0]
-				td = $ """<td class="#{key}">#{key}</td>"""
+			for key, value of _status.connections[0]
+				td = $ """<th class="#{key.replace("_","-")}">#{key.replace("_"," ")}</th>"""
 				thead.append td
-			@table.append thead
+			@connectionsTable.append thead
 
 			#build content
-			for row in _status
+			for row in _status.connections
 				tr = $ """<tr>"""
 				for key, value of row
-					td = $ """<td class="#{key}">#{value}</td>"""
+					td = $ """<td class="#{key.replace("_","-")}">#{value}</td>"""
 					tr.append td
 
-				@table.append tr
+				@connectionsTable.append tr
 
 
 

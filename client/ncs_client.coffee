@@ -5,11 +5,16 @@ class NCS
 		loadJS """http://#{@host}/socket.io/socket.io.js""", ()=>
 			@socket = io.connect """http://#{@host}"""
 			
+			@socket.emit 'ncs_hello', @name
+
+			# handle ncs protocol messages
+			@socket.on 'ncs_ping_request', (_data)=>
+				@socket.emit 'ncs_ping_response', _data
+
+			# handle application messages
 			@socket.on 'message', (_data)=>
 				@onmessage(_data)
 
-			@socket.on 'ncs_ping_request', (_data)=>
-				@socket.emit 'ncs_ping_response', _data
 
 			_callback()
 		

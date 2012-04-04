@@ -3,10 +3,12 @@
 
   $(function() {
     console.log("start");
-    ncs.connect(location.host, "ncs_test");
+    ncs.connect(location.host, "ncs_test", function() {
+      screenLog('sending echo: testing');
+      return ncs.send('echo', Date.now());
+    });
     ncs.onreceive(function(_key, _value) {
       var time;
-      if (_key === 'hello') screenLog('received hello: ' + _value);
       if (_key === 'echo') {
         time = Date.now() - _value;
         return screenLog("received echo(" + _value + ") in " + time + "ms");
@@ -19,7 +21,7 @@
   });
 
   screenLog = function(_value) {
-    return $("#console").append($("<div>" + (_value.toString()) + "</div>"));
+    return $("#console").append($("<tr><td>" + (_value.toString()) + "</td></tr>"));
   };
 
 }).call(this);
