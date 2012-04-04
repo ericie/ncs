@@ -12,6 +12,11 @@ header {
   border-bottom: 1px solid #6666aa;
   margin-bottom: 18px;
 }
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 9px 9px;
+}
 .table-lined {
   max-width: 100%;
   border-collapse: collapse;
